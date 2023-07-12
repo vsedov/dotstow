@@ -35,45 +35,42 @@ def usage():
 
 
 if __name__ == "__main__":
-    embedimage = False
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "o:e", ["output="])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
+   embedimage = False
+   try:
+       opts, args = getopt.getopt(sys.argv[1:], "o:e", ["output="])
+   except getopt.GetoptError:
+       usage()
+       sys.exit(2)
 
-    outputfile = '-'
+   outputfile = '-'
 
-    for o, a in opts:
-        if o in ("-o", "--output"):
-            outputfile = a
-        if o == '-e':
-            embedimage = True
+   for o, a in opts:
+       if o in ("-o", "--output"):
+           outputfile = a
+       if o == '-e':
+           embedimage = True
 
-    if len(args) > 1:
-        usage()
-        sys.exit(2)
-    if len(args) == 0:
-        d = load(sys.stdin)
-    else:
-        d = load(unicode(args[0]))
-    if embedimage:
-        images = d.getElementsByType(Image) + \
-           d.getElementsByType(BackgroundImage) +  \
-           d.getElementsByType(ObjectOle) + \
-           d.getElementsByType(ListLevelStyleImage)
-        for image in images:
-            href = image.getAttribute('href')
-            if href and href[:9] == "Pictures/":
-                p = d.Pictures[href]
-                bp = base64.encodestring(p[1])
-                image.addElement(BinaryData(text=bp))
-                image.removeAttribute('href')
-    xml = d.xml()
-    if outputfile == '-':
-       print (xml)
-    else:
-        open(outputfile,"wb").write(xml)
+   if len(args) > 1:
+       usage()
+       sys.exit(2)
+   d = load(sys.stdin) if len(args) == 0 else load(unicode(args[0]))
+   if embedimage:
+       images = d.getElementsByType(Image) + \
+          d.getElementsByType(BackgroundImage) +  \
+          d.getElementsByType(ObjectOle) + \
+          d.getElementsByType(ListLevelStyleImage)
+       for image in images:
+           href = image.getAttribute('href')
+           if href and href[:9] == "Pictures/":
+               p = d.Pictures[href]
+               bp = base64.encodestring(p[1])
+               image.addElement(BinaryData(text=bp))
+               image.removeAttribute('href')
+   xml = d.xml()
+   if outputfile == '-':
+      print (xml)
+   else:
+       open(outputfile,"wb").write(xml)
 
 
 # Local Variables: ***

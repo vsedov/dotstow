@@ -169,44 +169,19 @@ if __name__ == "__main__":
         parser.print_help()
         exit( 0 )
 
-    if options.delimiter:
-        delimiter = options.delimiter
-    else:
-        delimiter = ","
-
-    if options.skipinitialspace:
-        skipinitialspace = True
-    else:
-        skipinitialspace=False
-
-    if options.lineterminator:
-        lineterminator = options.lineterminator
-    else:
-        lineterminator ="\r\n"
-
-    if options.escapechar:
-        escapechar = options.escapechar
-    else:
-        escapechar=None
-
-    if options.tableName:
-        tableName = options.tableName
-    else:
-        tableName = "table"
-
-    if options.quotechar:
-        quotechar = options.quotechar
-    else:
-        quotechar = "\""
-
+    delimiter = options.delimiter if options.delimiter else ","
+    skipinitialspace = bool(options.skipinitialspace)
+    lineterminator = options.lineterminator if options.lineterminator else "\r\n"
+    escapechar = options.escapechar if options.escapechar else None
+    tableName = options.tableName if options.tableName else "table"
+    quotechar = options.quotechar if options.quotechar else "\""
     encoding = "utf-8" # default setting
     ###########################################################
     ## try to guess the encoding; this is implemented only with
     ## POSIX platforms. Can it be improved?
-    output = os.popen('/usr/bin/file ' + pathFileCSV).read()
-    m=re.match(r'^.*: ([-a-zA-Z0-9]+) text$', output)
-    if m:
-        encoding=m.group(1)
+    output = os.popen(f'/usr/bin/file {pathFileCSV}').read()
+    if m := re.match(r'^.*: ([-a-zA-Z0-9]+) text$', output):
+        encoding = m[1]
         if 'ISO-8859' in encoding:
             encoding="latin-1"
     else:

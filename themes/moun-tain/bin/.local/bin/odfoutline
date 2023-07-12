@@ -74,8 +74,7 @@ class ODTSheetHandler(handler.ContentHandler):
 
     def startElementNS(self, tag, qname, attrs):
         if tag == (TABLENS, 'table'):
-            sheetname =  attrs.get((TABLENS, 'name'))
-            if sheetname:
+            if sheetname := attrs.get((TABLENS, 'name')):
                 self.r.append(sheetname)
 
 class ODTSlideHandler(handler.ContentHandler):
@@ -99,8 +98,8 @@ class ODTSlideHandler(handler.ContentHandler):
         if tag == (TEXTNS, 'p'):
             str = ''.join(self.data)
             self.data = []
-            if len(str) > 0:
-                self.r.append(" " + str)
+            if str != "":
+                self.r.append(f" {str}")
 
 def odtheadings(odtfile):
     mimetype = getxmlpart(odtfile,'mimetype')

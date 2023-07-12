@@ -55,12 +55,12 @@ htmlpart['Content-Location'] = 'index.html'
 msg.attach(htmlpart)
 z = zipfile.ZipFile(sys.argv[1])
 for file in z.namelist():
-    if file[0:9] == 'Pictures/':
+    if file[:9] == 'Pictures/':
         suffix = file[file.rfind(".")+1:]
-        main,sub = suffices.get(suffix,('application','octet-stream')) 
+        main,sub = suffices.get(suffix,('application','octet-stream'))
         img = MIMENonMultipart(main,sub)
         img.set_payload(z.read(file))
-        img['Content-Location'] = "" + file
+        img['Content-Location'] = f"{file}"
         encoders.encode_base64(img)
         msg.attach(img)
 z.close()

@@ -84,7 +84,7 @@ class odfsplitter(base):
 
     def startPrefixMapping(self, prefix, uri):
         base.startPrefixMapping(self, prefix, uri)
-        self._prefixes.append('xmlns:%s="%s"' % (prefix, uri))
+        self._prefixes.append(f'xmlns:{prefix}="{uri}"')
 
     def startElementNS(self, name, qname, attrs):
         if name == (OFFICENS, u"document"):

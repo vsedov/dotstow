@@ -77,12 +77,10 @@ def print_error(str):
         print (str)
 
 def chop_arg(arg):
-    if len(arg) > 20:
-        return "%s..." % arg[0:20]
-    return arg
+    return f"{arg[:20]}..." if len(arg) > 20 else arg
 
 def make_qname(tag):
-    return "%s:%s" % (nsdict.get(tag[0],tag[0]), tag[1])
+    return f"{nsdict.get(tag[0], tag[0])}:{tag[1]}"
 
 def allowed_attributes(tag):
    return grammar.allowed_attributes.get(tag)
@@ -104,25 +102,30 @@ class ODFElementHandler(handler.ContentHandler):
         """
         allowed_attrs = grammar.allowed_attributes.get(tag)
         attrdict = {}
-        for (att,value) in attrs.items():
+        for att, value in attrs.items():
             prefix = nsdict.get(att[0],att[0])
             # Check if it is a known extension
             notan_extension = True
             for product, ext_attrs in extension_attributes.items():
                 allowed_ext_attrs = ext_attrs.get(tag)
                 if allowed_ext_attrs and att in allowed_ext_attrs:
-                    print_error("Warning: Attribute %s in element <%s> is illegal - %s extension"  % ( make_qname(att), make_qname(tag), product))
+                    print_error(
+                        f"Warning: Attribute {make_qname(att)} in element <{make_qname(tag)}> is illegal - {product} extension"
+                    )
                     notan_extension = False
             # Check if it is an allowed attribute
             if notan_extension and allowed_attrs and att not in allowed_attrs:
-                print_error("Error: Attribute %s:%s is not allowed in element <%s>" % ( prefix, att[1], make_qname(tag)))
+                print_error(
+                    f"Error: Attribute {prefix}:{att[1]} is not allowed in element <{make_qname(tag)}>"
+                )
             # Check the value
             try:
                 convert = attrconverters.get(att, cnv_string)
                 convert(att, value, tag)
             except ValueError as res:
-                print_error("Error: Bad value '%s' for attribute %s:%s in  tag: <%s> - %s" % 
-                    (chop_arg(value), prefix, att[1], make_qname(tag), res))
+                print_error(
+                    f"Error: Bad value '{chop_arg(value)}' for attribute {prefix}:{att[1]} in  tag: <{make_qname(tag)}> - {res}"
+                )
 
         self.tagstack.append(tag)
         self.data = []
@@ -134,16 +137,20 @@ class ODFElementHandler(handler.ContentHandler):
                 parent = self.tagstack[-2]
                 allowed_children = grammar.allowed_children.get(parent)
             except:
-                print_error("Error: This document starts with the wrong tag: <%s>" % make_qname(tag))
+                print_error(
+                    f"Error: This document starts with the wrong tag: <{make_qname(tag)}>"
+                )
                 allowed_children = None
             if allowed_children and tag not in allowed_children:
-                print_error("Error: Element %s is not allowed in element %s" % ( make_qname(tag), make_qname(parent)))
-        # Test that all mandatory attributes have been added.
-        required = grammar.required_attributes.get(tag)
-        if required:
+                print_error(
+                    f"Error: Element {make_qname(tag)} is not allowed in element {make_qname(parent)}"
+                )
+        if required := grammar.required_attributes.get(tag):
             for r in required:
                 if attrs.get(r) is None:
-                    print_error("Error: Required attribute missing: %s in <%s>" % (make_qname(r), make_qname(tag)))
+                    print_error(
+                        f"Error: Required attribute missing: {make_qname(r)} in <{make_qname(tag)}>"
+                    )
 
 
     def endElementNS(self, tag, qname):
@@ -153,7 +160,7 @@ class ODFElementHandler(handler.ContentHandler):
         # But only elements we know exist in grammar
         if tag in grammar.allowed_children:
             if str != '' and tag not in grammar.allows_text:
-                print_error("Error: %s does not allow text data" % make_qname(tag))
+                print_error(f"Error: {make_qname(tag)} does not allow text data")
         self.data = []
 
 class ODFDTDHandler(handler.DTDHandler):

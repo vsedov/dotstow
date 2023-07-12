@@ -37,7 +37,7 @@ except getopt.GetoptError:
     usage()
     sys.exit(2)
 
-fromaddr = os.getlogin() + "@" + os.getenv('HOSTNAME','localhost')
+fromaddr = f"{os.getlogin()}@" + os.getenv('HOSTNAME','localhost')
 subject = None
 for o, a in opts:
     if o in ("-f", "--from"):
@@ -65,23 +65,20 @@ msg.preamble = 'This is a multi-part message in MIME format.'
 msg.epilogue = ''
 odhandler = ODF2XHTML()
 result = odhandler.odf2xhtml(unicode(args[0]))
-if subject:
-    msg['Subject'] = subject
-else:
-    msg['Subject'] = odhandler.title
+msg['Subject'] = subject if subject else odhandler.title
 htmlpart = MIMEText(result,'html','us-ascii')
 htmlpart['Content-Location'] = 'index.html'
 msg.attach(htmlpart)
 z = zipfile.ZipFile(unicode(args[0]))
 for file in z.namelist():
-    if file[0:9] == 'Pictures/':
-        suffix = file[file.rfind(".")+1:]
-        main,sub = suffices.get(suffix,('application','octet-stream')) 
-        img = MIMENonMultipart(main,sub)
-        img.set_payload(z.read(file))
-        img['Content-Location'] = "" + file
-        encode_base64(img)
-        msg.attach(img)
+   if file[:9] == 'Pictures/':
+      suffix = file[file.rfind(".")+1:]
+      main,sub = suffices.get(suffix,('application','octet-stream'))
+      img = MIMENonMultipart(main,sub)
+      img.set_payload(z.read(file))
+      img['Content-Location'] = f"{file}"
+      encode_base64(img)
+      msg.attach(img)
 z.close()
 
 server = smtplib.SMTP('localhost')

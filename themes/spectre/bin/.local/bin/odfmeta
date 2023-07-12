@@ -109,9 +109,9 @@ class odfmetaparser(base):
 #           self._data = [attrs.get((XLINKNS,u'title'),'')]
         if showversion and name == (OFFICENS,u'document-meta'):
             if showversion == '-V':
-                print ("version:%s" % attrs.get((OFFICENS,u'version'),'Unknown').decode('utf-8'))
+                print(f"version:{attrs.get((OFFICENS, 'version'), 'Unknown').decode('utf-8')}")
             else:
-                print ("%s" % attrs.get((OFFICENS,u'version'),'Unknown').decode('utf-8'))
+                print(f"{attrs.get((OFFICENS, 'version'), 'Unknown').decode('utf-8')}")
         if name == (METANS,u'user-defined'):
             field = attrs.get((METANS,u'name'))
         if field in deletefields:
@@ -139,13 +139,10 @@ class odfmetaparser(base):
                         base.characters(self, v)
                         base.endElementNS(self, k, None)
         if name in xfields:
-                print ("%s" % self.data())
+            print(f"{self.data()}")
         if name in Xfields:
-            if isinstance(self._tag, tuple):
-                texttag = self._tag[1]
-            else:
-                texttag = self._tag
-            print ("%s:%s" % (texttag, self.data()))
+            texttag = self._tag[1] if isinstance(self._tag, tuple) else self._tag
+            print(f"{texttag}:{self.data()}")
         if field in deletefields:
             self.output.dowrite = True
         else:
@@ -159,10 +156,7 @@ class odfmetaparser(base):
         return self.output.content()
 
     def data(self):
-        if usenormalize:
-            return normalize(''.join(self._data))
-        else:
-            return ''.join(self._data)
+        return normalize(''.join(self._data)) if usenormalize else ''.join(self._data)
 
 now = time.localtime()[:6]
 outputfile = "-"
@@ -180,18 +174,15 @@ if len(opts) == 0:
 for o, a in opts:
     if o in ('-a','-A','-I'):
         writemeta = True
-        if a.find(":") >= 0:
-            k,v = a.split(":",1)
-        else:
-            k,v = (a, "")
+        k,v = a.split(":",1) if a.find(":") >= 0 else (a, "")
         if len(k) == 0:
             exitwithusage()
         k = fields.get(k,k)
         addfields[k] = unicode(v,'utf-8')
-    if o == '-a':
-        yieldfields[k] = True
     if o == '-I':
         deletefields[k] = True
+    elif o == '-a':
+        yieldfields[k] = True
     if o == '-d':
         writemeta = True
         addfields[(DCNS,u'date')] = "%04d-%02d-%02dT%02d:%02d:%02d" % now

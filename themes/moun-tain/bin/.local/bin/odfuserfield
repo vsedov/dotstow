@@ -50,20 +50,17 @@ if len(opts) == 0:
     exitwithusage()
 
 for o, a in opts:
-    if o == '-s':
-        if a.find(":") >= 0:
-            k,v = a.split(":",1)
-        else:
-            k,v = (a, "")
-        if len(k) == 0:
-            exitwithusage()
-        setfields[unicode(k)] = unicode(v)
-    if o == '-l':
-        listfields = True
-        Listfields = False
     if o == '-L':
         Listfields = True
         listfields = False
+    elif o == '-l':
+        listfields = True
+        Listfields = False
+    elif o == '-s':
+        k,v = a.split(":",1) if a.find(":") >= 0 else (a, "")
+        if len(k) == 0:
+            exitwithusage()
+        setfields[unicode(k)] = unicode(v)
     if o == "-x":
         xfields.append(unicode(a))
     if o == "-X":
@@ -80,13 +77,17 @@ if xfields:
     for value in user_fields.list_values(xfields):
         print (value)
 
-if Listfields or Xfields:
-    if Listfields:
-        Xfields = None
+if Listfields:
+    Xfields = None
     for field_name, value_type, value in user_fields.list_fields_and_values(
         Xfields):
-        print ("%s#%s:%s" % (field_name, value_type, value))
-    
+        print(f"{field_name}#{value_type}:{value}")
+
+elif Xfields:
+    for field_name, value_type, value in user_fields.list_fields_and_values(
+        Xfields):
+        print(f"{field_name}#{value_type}:{value}")
+
 if listfields:
     for value in user_fields.list_fields():
         print (value)

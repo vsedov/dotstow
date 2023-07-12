@@ -43,11 +43,10 @@ def action(command, text):
     return "%{A1:" + PATH + " --" + command + ":}" + text + "%{A}"
 
 def truncate(text, max_len):
-    return text[:max_len] + "..." if len(text) > max_len and max_len > 0 else text
+    return f"{text[:max_len]}..." if len(text) > max_len > 0 else text
 
 def get_media_icon(url):
-    match = MEDIA_ICONS_REGEX.findall(url)
-    if match:
+    if match := MEDIA_ICONS_REGEX.findall(url):
         if len(match) == 1:
             return MEDIA_ICONS[match[0]]
     return None

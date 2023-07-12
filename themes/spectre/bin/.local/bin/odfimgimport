@@ -79,9 +79,8 @@ def importpicture(href):
             image = f.read()
             headers = f.info()
             f.close()
-            # Get the mimetype from the headerlines
-            c_t = headers['Content-Type'].split(';')[0].strip()
-            if c_t: mediatype = c_t.split(';')[0].strip()
+            if c_t := headers['Content-Type'].split(';')[0].strip():
+                mediatype = c_t.split(';')[0].strip()
             if verbose: print ("OK", file=sys.stderr)
         except:
             failures += 1
@@ -94,7 +93,6 @@ def importpicture(href):
             lastslash = href[href.rindex('/'):]
             ext = lastslash[lastslash.rindex('.'):]
         except: ext = mimetypes.guess_extension(mediatype)
-    # Everything is a simple path.
     else:
         goodhref = href
         if href[:3] == '../':
@@ -131,7 +129,10 @@ def importpicture(href):
 
 def exitwithusage(exitcode=2):
     """ Print out usage information and exit """
-    print ("Usage: %s [-q] [-v] [-o output] [inputfile]" % sys.argv[0], file=sys.stderr)
+    print(
+        f"Usage: {sys.argv[0]} [-q] [-v] [-o output] [inputfile]",
+        file=sys.stderr,
+    )
     print ("\tInputfile must be OpenDocument format", file=sys.stderr)
     sys.exit(exitcode)
 
@@ -147,9 +148,9 @@ for o, a in opts:
     if o == "-o":
         outputfile = a
         writefile = True
-    if o == "-q":
+    elif o == "-q":
         quiet = 1
-    if o == "-v":
+    elif o == "-v":
         verbose = 1
 
 if len(args) == 0:
@@ -164,8 +165,7 @@ else:
     if not zipfile.is_zipfile(fn):
         exitwithusage()
     dirinx = max(fn.rfind('\\'), fn.rfind('/'))
-    if dirinx >= 0: directory = fn[:dirinx]
-    else: directory = "."
+    directory = fn[:dirinx] if dirinx >= 0 else "."
     doc = load(fn)
 
 for image in doc.getElementsByType(Image):
